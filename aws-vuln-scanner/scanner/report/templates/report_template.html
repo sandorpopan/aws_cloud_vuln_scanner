@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AWS Vulnerability Scan Report — {{ account_id }}</title>
+<style>
+  :root {
+    --critical: #b91c1c;
+    --high: #ea580c;
+    --medium: #d97706;
+    --low: #2563eb;
+    --info: #6b7280;
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 32px;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); margin-bottom: 24px; font-size: 14px; }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .summary-card {
+    background: var(--panel);
+    border-radius: 8px;
+    padding: 16px;
+    border-left: 4px solid var(--muted);
+  }
+  .summary-card.critical { border-color: var(--critical); }
+  .summary-card.high { border-color: var(--high); }
+  .summary-card.medium { border-color: var(--medium); }
+  .summary-card.low { border-color: var(--low); }
+  .summary-card .count { font-size: 28px; font-weight: 700; }
+  .summary-card .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .filters { margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .filters button {
+    background: var(--panel); color: var(--text); border: 1px solid #334155;
+    border-radius: 6px; padding: 6px 12px; font-size: 13px; cursor: pointer;
+  }
+  .filters button.active { border-color: var(--text); }
+
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border-radius: 8px; overflow: hidden; }
+  th, td { text-align: left; padding: 10px 12px; font-size: 13px; border-bottom: 1px solid #334155; vertical-align: top; }
+  th { color: var(--muted); text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
+  tr:last-child td { border-bottom: none; }
+
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px;
+    font-weight: 700; text-transform: uppercase; color: white;
+  }
+  .badge.critical { background: var(--critical); }
+  .badge.high { background: var(--high); }
+  .badge.medium { background: var(--medium); }
+  .badge.low { background: var(--low); }
+  .badge.info { background: var(--info); }
+
+  .desc { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .remediation { color: #86efac; font-size: 12px; margin-top: 4px; }
+  .resource { font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
+</style>
+</head>
+<body>
+  <h1>AWS Vulnerability Scan Report</h1>
+  <div class="subtitle">
+    Account: {{ account_id }} &middot;
+    Regions: {{ regions_scanned | join(', ') }} &middot;
+    Services: {{ services_scanned | join(', ') }} &middot;
+    Duration: {{ duration_seconds }}s
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="count">{{ total_findings }}</div>
+      <div class="label">Total Findings</div>
+    </div>
+    {% for sev in ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'] %}
+    <div class="summary-card {{ sev | lower }}">
+      <div class="count">{{ by_severity.get(sev, 0) }}</div>
+      <div class="label">{{ sev }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="active" data-sev="all">All</button>
+    {% for sev in ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO'] %}
+    <button data-sev="{{ sev }}">{{ sev }} ({{ by_severity.get(sev, 0) }})</button>
+    {% endfor %}
+  </div>
+
+  <table id="findings-table">
+    <thead>
+      <tr>
+        <th>Severity</th>
+        <th>Rule</th>
+        <th>Resource</th>
+        <th>Region</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in findings %}
+      <tr data-sev="{{ f.severity }}">
+        <td><span class="badge {{ f.severity | lower }}">{{ f.severity }}</span></td>
+        <td>
+          <strong>{{ f.rule_id }}</strong> — {{ f.title }}
+          <div class="desc">{{ f.description }}</div>
+          <div class="remediation">Fix: {{ f.remediation }}</div>
+        </td>
+        <td class="resource">{{ f.resource_id }}</td>
+        <td>{{ f.region }}</td>
+        <td class="resource">{{ f.service }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <script>
+    document.getElementById('filters').addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      document.querySelectorAll('#filters button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const sev = btn.dataset.sev;
+      document.querySelectorAll('#findings-table tbody tr').forEach(row => {
+        row.style.display = (sev === 'all' || row.dataset.sev === sev) ? '' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>

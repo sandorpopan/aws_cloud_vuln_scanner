@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AWS Vulnerability Scan Report — 123456789012</title>
+<style>
+  :root {
+    --critical: #b91c1c;
+    --high: #ea580c;
+    --medium: #d97706;
+    --low: #2563eb;
+    --info: #6b7280;
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 32px;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); margin-bottom: 24px; font-size: 14px; }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .summary-card {
+    background: var(--panel);
+    border-radius: 8px;
+    padding: 16px;
+    border-left: 4px solid var(--muted);
+  }
+  .summary-card.critical { border-color: var(--critical); }
+  .summary-card.high { border-color: var(--high); }
+  .summary-card.medium { border-color: var(--medium); }
+  .summary-card.low { border-color: var(--low); }
+  .summary-card .count { font-size: 28px; font-weight: 700; }
+  .summary-card .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .filters { margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .filters button {
+    background: var(--panel); color: var(--text); border: 1px solid #334155;
+    border-radius: 6px; padding: 6px 12px; font-size: 13px; cursor: pointer;
+  }
+  .filters button.active { border-color: var(--text); }
+
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border-radius: 8px; overflow: hidden; }
+  th, td { text-align: left; padding: 10px 12px; font-size: 13px; border-bottom: 1px solid #334155; vertical-align: top; }
+  th { color: var(--muted); text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
+  tr:last-child td { border-bottom: none; }
+
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px;
+    font-weight: 700; text-transform: uppercase; color: white;
+  }
+  .badge.critical { background: var(--critical); }
+  .badge.high { background: var(--high); }
+  .badge.medium { background: var(--medium); }
+  .badge.low { background: var(--low); }
+  .badge.info { background: var(--info); }
+
+  .desc { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .remediation { color: #86efac; font-size: 12px; margin-top: 4px; }
+  .resource { font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
+</style>
+</head>
+<body>
+  <h1>AWS Vulnerability Scan Report</h1>
+  <div class="subtitle">
+    Account: 123456789012 &middot;
+    Regions: us-east-1, eu-west-1 &middot;
+    Services: iam, s3, ec2, rds, cloudtrail &middot;
+    Duration: 14.7s
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="count">12</div>
+      <div class="label">Total Findings</div>
+    </div>
+    
+    <div class="summary-card critical">
+      <div class="count">4</div>
+      <div class="label">CRITICAL</div>
+    </div>
+    
+    <div class="summary-card high">
+      <div class="count">2</div>
+      <div class="label">HIGH</div>
+    </div>
+    
+    <div class="summary-card medium">
+      <div class="count">3</div>
+      <div class="label">MEDIUM</div>
+    </div>
+    
+    <div class="summary-card low">
+      <div class="count">2</div>
+      <div class="label">LOW</div>
+    </div>
+    
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="active" data-sev="all">All</button>
+    
+    <button data-sev="CRITICAL">CRITICAL (4)</button>
+    
+    <button data-sev="HIGH">HIGH (2)</button>
+    
+    <button data-sev="MEDIUM">MEDIUM (3)</button>
+    
+    <button data-sev="LOW">LOW (2)</button>
+    
+    <button data-sev="INFO">INFO (1)</button>
+    
+  </div>
+
+  <table id="findings-table">
+    <thead>
+      <tr>
+        <th>Severity</th>
+        <th>Rule</th>
+        <th>Resource</th>
+        <th>Region</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+      <tr data-sev="CRITICAL">
+        <td><span class="badge critical">CRITICAL</span></td>
+        <td>
+          <strong>IAM-001</strong> — Root account does not have MFA enabled
+          <div class="desc">The AWS root account has full, unrestricted access to the account. Without MFA, a leaked root password is a total account compromise.</div>
+          <div class="remediation">Fix: Enable a hardware or virtual MFA device on the root account immediately.</div>
+        </td>
+        <td class="resource">root-account</td>
+        <td>global</td>
+        <td class="resource">iam</td>
+      </tr>
+      
+      <tr data-sev="CRITICAL">
+        <td><span class="badge critical">CRITICAL</span></td>
+        <td>
+          <strong>S3-001</strong> — S3 bucket is publicly accessible
+          <div class="desc">This bucket&#39;s ACL or bucket policy allows access from anyone on the internet.</div>
+          <div class="remediation">Fix: Enable S3 Block Public Access at the bucket (and account) level.</div>
+        </td>
+        <td class="resource">company-uploads-prod</td>
+        <td>us-east-1</td>
+        <td class="resource">s3</td>
+      </tr>
+      
+      <tr data-sev="CRITICAL">
+        <td><span class="badge critical">CRITICAL</span></td>
+        <td>
+          <strong>EC2-001</strong> — Security group allows unrestricted inbound access on a sensitive port
+          <div class="desc">A security group permits inbound traffic from 0.0.0.0/0 on a sensitive port.</div>
+          <div class="remediation">Fix: Restrict the source CIDR to known IP ranges or remove the rule entirely.</div>
+        </td>
+        <td class="resource">sg-0a1b2c3d4e5f</td>
+        <td>us-east-1</td>
+        <td class="resource">ec2</td>
+      </tr>
+      
+      <tr data-sev="CRITICAL">
+        <td><span class="badge critical">CRITICAL</span></td>
+        <td>
+          <strong>RDS-001</strong> — RDS instance is publicly accessible
+          <div class="desc">This database instance has a publicly resolvable endpoint reachable from the internet.</div>
+          <div class="remediation">Fix: Set PubliclyAccessible to false.</div>
+        </td>
+        <td class="resource">prod-orders-db</td>
+        <td>us-east-1</td>
+        <td class="resource">rds</td>
+      </tr>
+      
+      <tr data-sev="HIGH">
+        <td><span class="badge high">HIGH</span></td>
+        <td>
+          <strong>IAM-004</strong> — IAM policy grants wildcard (Action:* / Resource:*) permissions
+          <div class="desc">A customer-managed policy allows all actions on all resources.</div>
+          <div class="remediation">Fix: Scope the policy down to specific actions and resource ARNs.</div>
+        </td>
+        <td class="resource">LegacyFullAccessPolicy</td>
+        <td>global</td>
+        <td class="resource">iam</td>
+      </tr>
+      
+      <tr data-sev="HIGH">
+        <td><span class="badge high">HIGH</span></td>
+        <td>
+          <strong>CT-001</strong> — No multi-region CloudTrail trail is enabled and logging
+          <div class="desc">Without an active multi-region trail, API activity in some regions goes unlogged.</div>
+          <div class="remediation">Fix: Create a trail with IsMultiRegionTrail=true.</div>
+        </td>
+        <td class="resource">account</td>
+        <td>us-east-1</td>
+        <td class="resource">cloudtrail</td>
+      </tr>
+      
+      <tr data-sev="MEDIUM">
+        <td><span class="badge medium">MEDIUM</span></td>
+        <td>
+          <strong>S3-002</strong> — S3 bucket does not have default encryption enabled
+          <div class="desc">Objects written to this bucket are not encrypted at rest by default.</div>
+          <div class="remediation">Fix: Enable default server-side encryption.</div>
+        </td>
+        <td class="resource">company-backups</td>
+        <td>us-east-1</td>
+        <td class="resource">s3</td>
+      </tr>
+      
+      <tr data-sev="MEDIUM">
+        <td><span class="badge medium">MEDIUM</span></td>
+        <td>
+          <strong>RDS-002</strong> — RDS instance storage is not encrypted
+          <div class="desc">Data at rest on this RDS instance is not encrypted.</div>
+          <div class="remediation">Fix: Enable storage encryption via snapshot copy.</div>
+        </td>
+        <td class="resource">staging-analytics-db</td>
+        <td>eu-west-1</td>
+        <td class="resource">rds</td>
+      </tr>
+      
+      <tr data-sev="MEDIUM">
+        <td><span class="badge medium">MEDIUM</span></td>
+        <td>
+          <strong>EC2-002</strong> — EBS volume is not encrypted
+          <div class="desc">Data on this EBS volume is stored unencrypted at rest.</div>
+          <div class="remediation">Fix: Enable EBS encryption by default.</div>
+        </td>
+        <td class="resource">vol-0f1e2d3c4b5a</td>
+        <td>us-east-1</td>
+        <td class="resource">ec2</td>
+      </tr>
+      
+      <tr data-sev="LOW">
+        <td><span class="badge low">LOW</span></td>
+        <td>
+          <strong>EC2-003</strong> — EC2 instance has a public IP address
+          <div class="desc">This instance is directly reachable from the internet.</div>
+          <div class="remediation">Fix: Move behind a private subnet / load balancer / bastion if not needed.</div>
+        </td>
+        <td class="resource">i-0abc123def456789</td>
+        <td>us-east-1</td>
+        <td class="resource">ec2</td>
+      </tr>
+      
+      <tr data-sev="LOW">
+        <td><span class="badge low">LOW</span></td>
+        <td>
+          <strong>S3-004</strong> — S3 bucket does not have access logging enabled
+          <div class="desc">Without access logging, requests cannot be audited after an incident.</div>
+          <div class="remediation">Fix: Enable server access logging.</div>
+        </td>
+        <td class="resource">company-uploads-prod</td>
+        <td>us-east-1</td>
+        <td class="resource">s3</td>
+      </tr>
+      
+      <tr data-sev="INFO">
+        <td><span class="badge info">INFO</span></td>
+        <td>
+          <strong>EC2-004</strong> — Default VPC is present and in use
+          <div class="desc">The default VPC has permissive default settings.</div>
+          <div class="remediation">Fix: Use custom VPCs with intentional subnetting/routing.</div>
+        </td>
+        <td class="resource">vpc-0123456789abcdef0</td>
+        <td>us-east-1</td>
+        <td class="resource">ec2</td>
+      </tr>
+      
+    </tbody>
+  </table>
+
+  <script>
+    document.getElementById('filters').addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      document.querySelectorAll('#filters button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const sev = btn.dataset.sev;
+      document.querySelectorAll('#findings-table tbody tr').forEach(row => {
+        row.style.display = (sev === 'all' || row.dataset.sev === sev) ? '' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>

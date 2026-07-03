@@ -1,0 +1,222 @@
+{
+  "account_id": "123456789012",
+  "regions_scanned": [
+    "us-east-1",
+    "eu-west-1"
+  ],
+  "services_scanned": [
+    "iam",
+    "s3",
+    "ec2",
+    "rds",
+    "cloudtrail"
+  ],
+  "duration_seconds": 14.7,
+  "summary": {
+    "total_findings": 12,
+    "by_severity": {
+      "CRITICAL": 4,
+      "HIGH": 2,
+      "MEDIUM": 3,
+      "LOW": 2,
+      "INFO": 1
+    },
+    "by_service": {
+      "iam": 2,
+      "s3": 3,
+      "ec2": 4,
+      "rds": 2,
+      "cloudtrail": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "IAM-001",
+      "title": "Root account does not have MFA enabled",
+      "severity": "CRITICAL",
+      "severity_score": 4,
+      "service": "iam",
+      "resource_id": "root-account",
+      "region": "global",
+      "description": "The AWS root account has full, unrestricted access to the account. Without MFA, a leaked root password is a total account compromise.",
+      "remediation": "Enable a hardware or virtual MFA device on the root account immediately.",
+      "evidence": {
+        "AccountMFAEnabled": 0
+      },
+      "references": [],
+      "timestamp": 1783071364.93899
+    },
+    {
+      "rule_id": "S3-001",
+      "title": "S3 bucket is publicly accessible",
+      "severity": "CRITICAL",
+      "severity_score": 4,
+      "service": "s3",
+      "resource_id": "company-uploads-prod",
+      "region": "us-east-1",
+      "description": "This bucket's ACL or bucket policy allows access from anyone on the internet.",
+      "remediation": "Enable S3 Block Public Access at the bucket (and account) level.",
+      "evidence": {
+        "via": "bucket_policy"
+      },
+      "references": [],
+      "timestamp": 1783071364.9389927
+    },
+    {
+      "rule_id": "EC2-001",
+      "title": "Security group allows unrestricted inbound access on a sensitive port",
+      "severity": "CRITICAL",
+      "severity_score": 4,
+      "service": "ec2",
+      "resource_id": "sg-0a1b2c3d4e5f",
+      "region": "us-east-1",
+      "description": "A security group permits inbound traffic from 0.0.0.0/0 on a sensitive port.",
+      "remediation": "Restrict the source CIDR to known IP ranges or remove the rule entirely.",
+      "evidence": {
+        "port": 22,
+        "service": "SSH",
+        "cidrs": [
+          "0.0.0.0/0"
+        ]
+      },
+      "references": [],
+      "timestamp": 1783071364.9389946
+    },
+    {
+      "rule_id": "RDS-001",
+      "title": "RDS instance is publicly accessible",
+      "severity": "CRITICAL",
+      "severity_score": 4,
+      "service": "rds",
+      "resource_id": "prod-orders-db",
+      "region": "us-east-1",
+      "description": "This database instance has a publicly resolvable endpoint reachable from the internet.",
+      "remediation": "Set PubliclyAccessible to false.",
+      "evidence": {
+        "engine": "postgres"
+      },
+      "references": [],
+      "timestamp": 1783071364.9389956
+    },
+    {
+      "rule_id": "IAM-004",
+      "title": "IAM policy grants wildcard (Action:* / Resource:*) permissions",
+      "severity": "HIGH",
+      "severity_score": 3,
+      "service": "iam",
+      "resource_id": "LegacyFullAccessPolicy",
+      "region": "global",
+      "description": "A customer-managed policy allows all actions on all resources.",
+      "remediation": "Scope the policy down to specific actions and resource ARNs.",
+      "evidence": {
+        "policy_arn": "arn:aws:iam::123456789012:policy/LegacyFullAccessPolicy"
+      },
+      "references": [],
+      "timestamp": 1783071364.9389968
+    },
+    {
+      "rule_id": "CT-001",
+      "title": "No multi-region CloudTrail trail is enabled and logging",
+      "severity": "HIGH",
+      "severity_score": 3,
+      "service": "cloudtrail",
+      "resource_id": "account",
+      "region": "us-east-1",
+      "description": "Without an active multi-region trail, API activity in some regions goes unlogged.",
+      "remediation": "Create a trail with IsMultiRegionTrail=true.",
+      "evidence": {
+        "trail_count": 1
+      },
+      "references": [],
+      "timestamp": 1783071364.9389977
+    },
+    {
+      "rule_id": "S3-002",
+      "title": "S3 bucket does not have default encryption enabled",
+      "severity": "MEDIUM",
+      "severity_score": 2,
+      "service": "s3",
+      "resource_id": "company-backups",
+      "region": "us-east-1",
+      "description": "Objects written to this bucket are not encrypted at rest by default.",
+      "remediation": "Enable default server-side encryption.",
+      "evidence": {},
+      "references": [],
+      "timestamp": 1783071364.9389987
+    },
+    {
+      "rule_id": "RDS-002",
+      "title": "RDS instance storage is not encrypted",
+      "severity": "MEDIUM",
+      "severity_score": 2,
+      "service": "rds",
+      "resource_id": "staging-analytics-db",
+      "region": "eu-west-1",
+      "description": "Data at rest on this RDS instance is not encrypted.",
+      "remediation": "Enable storage encryption via snapshot copy.",
+      "evidence": {},
+      "references": [],
+      "timestamp": 1783071364.9389994
+    },
+    {
+      "rule_id": "EC2-002",
+      "title": "EBS volume is not encrypted",
+      "severity": "MEDIUM",
+      "severity_score": 2,
+      "service": "ec2",
+      "resource_id": "vol-0f1e2d3c4b5a",
+      "region": "us-east-1",
+      "description": "Data on this EBS volume is stored unencrypted at rest.",
+      "remediation": "Enable EBS encryption by default.",
+      "evidence": {
+        "state": "in-use"
+      },
+      "references": [],
+      "timestamp": 1783071364.9390001
+    },
+    {
+      "rule_id": "EC2-003",
+      "title": "EC2 instance has a public IP address",
+      "severity": "LOW",
+      "severity_score": 1,
+      "service": "ec2",
+      "resource_id": "i-0abc123def456789",
+      "region": "us-east-1",
+      "description": "This instance is directly reachable from the internet.",
+      "remediation": "Move behind a private subnet / load balancer / bastion if not needed.",
+      "evidence": {
+        "public_ip": "203.0.113.42"
+      },
+      "references": [],
+      "timestamp": 1783071364.9390113
+    },
+    {
+      "rule_id": "S3-004",
+      "title": "S3 bucket does not have access logging enabled",
+      "severity": "LOW",
+      "severity_score": 1,
+      "service": "s3",
+      "resource_id": "company-uploads-prod",
+      "region": "us-east-1",
+      "description": "Without access logging, requests cannot be audited after an incident.",
+      "remediation": "Enable server access logging.",
+      "evidence": {},
+      "references": [],
+      "timestamp": 1783071364.939012
+    },
+    {
+      "rule_id": "EC2-004",
+      "title": "Default VPC is present and in use",
+      "severity": "INFO",
+      "severity_score": 0,
+      "service": "ec2",
+      "resource_id": "vpc-0123456789abcdef0",
+      "region": "us-east-1",
+      "description": "The default VPC has permissive default settings.",
+      "remediation": "Use custom VPCs with intentional subnetting/routing.",
+      "evidence": {},
+      "references": [],
+      "timestamp": 1783071364.9390147
+    }
+  ]
+}
